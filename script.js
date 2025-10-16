@@ -51,3 +51,63 @@ const io = new IntersectionObserver(entries =>{
 
 document.querySelectorAll("[data-io]").forEach(el => io.observe(el));
 
+document.addEventListener('DOMContentLoaded', () => {
+    const singleOpen = true; 
+    const items = document.querySelectorAll('.faq-item');
+    if (!items.length) return;
+
+    function setExpanded(btn, content, expanded) {
+        btn.setAttribute('aria-expanded', String(expanded));
+        if (expanded) {
+        content.hidden = false;
+        const h = content.scrollHeight;
+        content.style.height = '0px';
+        content.dataset.animating = '1';
+        requestAnimationFrame(() => {
+            content.style.height = h + 'px';
+            content.style.opacity = '1';
+        });
+        content.addEventListener('transitionend', function end() {
+            content.style.height = '';
+            content.removeAttribute('data-animating');
+            content.removeEventListener('transitionend', end);
+        });
+        } else {
+        const h = content.offsetHeight;
+        content.style.height = h + 'px';
+        content.dataset.animating = '1';
+        requestAnimationFrame(() => {
+            content.style.height = '0px';
+            content.style.opacity = '0';
+        });
+        content.addEventListener('transitionend', function end() {
+            content.hidden = true;
+            content.style.height = '';
+            content.removeAttribute('data-animating');
+            content.removeEventListener('transitionend', end);
+        });
+        }
+    }
+
+    items.forEach((item) => {
+        const btn = item.querySelector('.faq-toggle');
+        const content = item.querySelector('.faq-a');
+        if (!btn || !content) return;
+
+        btn.addEventListener('click', () => {
+        const willOpen = btn.getAttribute('aria-expanded') !== 'true';
+
+        if (singleOpen && willOpen) {
+            document.querySelectorAll('.faq-toggle[aria-expanded="true"]').forEach((openBtn) => {
+            if (openBtn === btn) return;
+            const cId = openBtn.getAttribute('aria-controls');
+            const c = cId ? document.getElementById(cId) : null;
+            if (c && !c.hidden) setExpanded(openBtn, c, false);
+            });
+        }
+        setExpanded(btn, content, willOpen);
+        });
+    });
+});
+
+
