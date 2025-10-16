@@ -36,3 +36,18 @@ if (mobileNavToggle && mainNav) {
         }
     });
 }
+
+const io = new IntersectionObserver(entries =>{
+    entries.forEach(entry =>{
+        const el = entry.target;
+        const visible = entry.isIntersecting;
+
+        if (el.dataset.ioClass) el.classList.toggle(el.dataset.ioClass, visible);
+
+        if (el.dataset.ioPause === "animation") el.classList.toggle("paused", !visible);
+
+    });
+});
+
+document.querySelectorAll("[data-io]").forEach(el => io.observe(el));
+
